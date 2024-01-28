@@ -13,7 +13,7 @@ class DeliveryCarrier(models.Model):
     _inherit = 'delivery.carrier'
 
     delivery_type = fields.Selection(
-        selection_add=[('tipsa', 'Tipsa')],
+        selection_add=[('tipsa', 'Tipsa')], ondelete={'tipsa': lambda recs: recs.write({'delivery_type': 'fixed', 'fixed_price': 0})}
     )
     tipsa_usercode = fields.Char(
         string='User code',
