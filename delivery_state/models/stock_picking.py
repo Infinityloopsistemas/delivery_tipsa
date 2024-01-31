@@ -86,10 +86,10 @@ class StockPicking(models.Model):
         friend, would spoil the surprise"""
         for picking in self:
             email_act = picking._send_confirmation_email()
-            if email_act:
-                email_ctx = picking._get_delivery_mail_context()
-                picking.with_context(**email_ctx).message_post_with_template(
-                    email_ctx.get("default_template_id"))
+            # if email_act:
+            #     email_ctx = picking._get_delivery_mail_context()
+            #     picking.with_context(**email_ctx).message_post_with_template(
+            #         email_ctx.get("default_template_id"))
         return True
 
     def send_to_shipper(self):
