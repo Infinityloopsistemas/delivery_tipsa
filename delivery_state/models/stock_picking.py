@@ -85,7 +85,7 @@ class StockPicking(models.Model):
         a friend. The confirmation email should go to him. Sending it to the
         friend, would spoil the surprise"""
         for picking in self:
-            email_act = picking.action_send_confirmation_email()
+            email_act = picking._send_confirmation_email()
             if email_act:
                 email_ctx = picking._get_delivery_mail_context()
                 picking.with_context(**email_ctx).message_post_with_template(
