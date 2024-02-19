@@ -8,6 +8,8 @@ from unicodedata import normalize
 import requests
 from odoo import _, exceptions, fields, models
 
+import logging
+_logger = logging.getLogger(__name__)   
 
 class DeliveryCarrier(models.Model):
     _inherit = 'delivery.carrier'
@@ -24,11 +26,11 @@ class DeliveryCarrier(models.Model):
         help='Password for Tipsa webservice',
     )
     tipsa_agency_code = fields.Char(
-        strig='Agency code',
+        string='Agency code',
     )
     tipsa_token = fields.Char(
         string='Access token',
-        help='Access token. Valid for 15 minutes',
+        help='Access token. Valid for 10 minutes',
     )
     tipsa_token_expiration = fields.Datetime(
         string='Access Token Validity',
@@ -87,6 +89,7 @@ class DeliveryCarrier(models.Model):
 
     def tipsa_authenticate(self):
         if self.tipsa_token_expiration > datetime.now():
+            _logger.info("Almacenado Token: %s" % self.tipsa_token)
             return self.tipsa_token
         headers = {
             'Content-type': 'text/xml',
@@ -116,6 +119,10 @@ class DeliveryCarrier(models.Model):
             url = self.tipsa_url_login
         else:
             url = self.tipsa_test_url_login
+            
+        _logger.info("URL: %s" % url)
+        _logger.info("Headers: %s" % headers)
+        _logger.info("XML: %s" % xml)
         res = requests.post(url, headers=headers, data=xml)
         if res.status_code != 200:
             raise exceptions.UserError(
@@ -123,7 +130,8 @@ class DeliveryCarrier(models.Model):
         token_start = res.text.find('<ID>{')
         token_end = res.text.find('}</ID>')
         self.tipsa_token = res.text[token_start + 5:token_end]
-        self.tipsa_token_expiration = datetime.now() + timedelta(minutes=13)
+        self.tipsa_token_expiration = datetime.now() + timedelta(minutes=10)
+        _logger.info("Token: %s" % res.text[token_start + 5:token_end])
         return res.text[token_start + 5:token_end]
 
     def tipsa_send(self, data):
@@ -165,7 +173,7 @@ class DeliveryCarrier(models.Model):
                 </ROClientIDHeader>
             </soap:Header>
             <soap:Body>
-                <WebServService___GrabaEnvio20>
+                <WebServService___GrabaEnvio24 xmlns="http://tempuri.org" >
                 <strCodAgeCargo>%s</strCodAgeCargo>
                 <strCodAgeOri>%s</strCodAgeOri>
                 <dtFecha>%s</dtFecha>
@@ -182,7 +190,7 @@ class DeliveryCarrier(models.Model):
                 <strCPDes>%s</strCPDes>
                 <strPobDes>%s</strPobDes>
                 <strTlfDes>%s</strTlfDes>
-                <intPaq>1</intPaq>
+                <intPaq>%s</intPaq>
                 <strPersContacto>%s</strPersContacto>
                 <boDesSMS>0</boDesSMS>
                 <boDesEmail>1</boDesEmail>
@@ -190,7 +198,7 @@ class DeliveryCarrier(models.Model):
                 <strCodPais>%s</strCodPais>
                 <strContenido>%s</strContenido>
                 <boInsert>1</boInsert>
-                </WebServService___GrabaEnvio20>
+                </WebServService___GrabaEnvio24>
             </soap:Body>
             </soap:Envelope>""" % (
             line_1 + line_2,
@@ -212,6 +220,7 @@ class DeliveryCarrier(models.Model):
             picking.partner_id.zip,
             picking.partner_id.city[:25],
             picking.partner_id.phone,
+            picking.number_of_packages,
             picking.partner_id.display_name[:25],
             picking.company_id.email,
             picking.partner_id.country_id.code,
@@ -325,10 +334,12 @@ class DeliveryCarrier(models.Model):
         self.ensure_one()
         token_id = self.tipsa_authenticate()
         package_info = self._tipsa_prepare_create_shipping(picking, token_id)
+        _logger.info("Package info: %s" % package_info)
         picking.write({
             'tipsa_last_request': fields.Datetime.now(),
         })
         res = self.tipsa_send(package_info)
+        _logger.info("Respuesta: %s" % res.text)
         picking.write({
             'tipsa_last_response': fields.Datetime.now(),
         })

@@ -4,14 +4,15 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: es_VE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 
 #. module: delivery_price_method
 #: model:ir.model.fields.selection,name:delivery_price_method.selection__delivery_carrier__price_method__base_on_rule
@@ -24,23 +25,8 @@ msgid "Carrier obtained price"
 msgstr ""
 
 #. module: delivery_price_method
-#: model:ir.model.fields,field_description:delivery_price_method.field_delivery_carrier__display_name
-msgid "Display Name"
-msgstr ""
-
-#. module: delivery_price_method
 #: model:ir.model.fields.selection,name:delivery_price_method.selection__delivery_carrier__price_method__fixed
 msgid "Fixed price"
-msgstr ""
-
-#. module: delivery_price_method
-#: model:ir.model.fields,field_description:delivery_price_method.field_delivery_carrier__id
-msgid "ID"
-msgstr ""
-
-#. module: delivery_price_method
-#: model:ir.model.fields,field_description:delivery_price_method.field_delivery_carrier____last_update
-msgid "Last Modified on"
 msgstr ""
 
 #. module: delivery_price_method
