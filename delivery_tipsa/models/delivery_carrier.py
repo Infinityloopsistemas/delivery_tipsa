@@ -89,7 +89,6 @@ class DeliveryCarrier(models.Model):
 
     def tipsa_authenticate(self):
         if self.tipsa_token_expiration > datetime.now():
-            _logger.info("Almacenado Token: %s" % self.tipsa_token)
             return self.tipsa_token
         headers = {
             'Content-type': 'text/xml',
@@ -120,9 +119,6 @@ class DeliveryCarrier(models.Model):
         else:
             url = self.tipsa_test_url_login
             
-        _logger.info("URL: %s" % url)
-        _logger.info("Headers: %s" % headers)
-        _logger.info("XML: %s" % xml)
         res = requests.post(url, headers=headers, data=xml)
         if res.status_code != 200:
             raise exceptions.UserError(
@@ -131,7 +127,6 @@ class DeliveryCarrier(models.Model):
         token_end = res.text.find('}</ID>')
         self.tipsa_token = res.text[token_start + 5:token_end]
         self.tipsa_token_expiration = datetime.now() + timedelta(minutes=10)
-        _logger.info("Token: %s" % res.text[token_start + 5:token_end])
         return res.text[token_start + 5:token_end]
 
     def tipsa_send(self, data):
@@ -334,12 +329,10 @@ class DeliveryCarrier(models.Model):
         self.ensure_one()
         token_id = self.tipsa_authenticate()
         package_info = self._tipsa_prepare_create_shipping(picking, token_id)
-        _logger.info("Package info: %s" % package_info)
         picking.write({
             'tipsa_last_request': fields.Datetime.now(),
         })
         res = self.tipsa_send(package_info)
-        _logger.info("Respuesta: %s" % res.text)
         picking.write({
             'tipsa_last_response': fields.Datetime.now(),
         })
