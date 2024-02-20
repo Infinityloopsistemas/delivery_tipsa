@@ -9,6 +9,12 @@ import requests
 from odoo import _, exceptions, fields, models
 
 
+
+import logging
+_logger = logging.getLogger(__name__)
+
+
+
 class DeliveryCarrier(models.Model):
     _inherit = 'delivery.carrier'
 
