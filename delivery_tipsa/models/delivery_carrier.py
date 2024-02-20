@@ -4,7 +4,7 @@
 import base64
 from datetime import datetime, timedelta
 from unicodedata import normalize
-
+import re
 import requests
 from odoo import _, exceptions, fields, models
 
@@ -155,6 +155,13 @@ class DeliveryCarrier(models.Model):
             'res_id': picking_id,
             'mimetype': mimetype,
         })
+        
+    
+    def normal_ascii(self,s):
+        s_ascii = s.encode('ascii', errors='ignore').decode()
+        s_limpio = re.sub(r'[^a-zA-Z0-9\s]', '', s_ascii)
+        
+        return s_limpio
 
     def _tipsa_prepare_create_shipping(self, picking, token_id):
         self.ensure_one()
@@ -207,19 +214,19 @@ class DeliveryCarrier(models.Model):
             picking_date,
             self.tipsa_service_code,
             picking.company_id.zip,
-            picking.company_id.display_name[:25],
-            picking.company_id.street[:25],
+            self.normal_ascii(picking.company_id.display_name[:25]),
+            self.normal_ascii(picking.company_id.street[:25]),
             picking.company_id.city[:25],
             picking.company_id.zip,
             picking.company_id.phone,
-            picking.partner_id.display_name[:25],
-            picking.partner_id.street[:70],
-            picking.sale_id.name,
+            self.normal_ascii(picking.partner_id.display_name[:25]),
+            self.normal_ascii(picking.partner_id.street[:70]),
+            picking.sale_id.name or picking.name,
             picking.partner_id.zip,
             picking.partner_id.city[:25],
             picking.partner_id.phone,
             picking.number_of_packages,
-            picking.partner_id.display_name[:25],
+            self.normal_ascii(picking.partner_id.display_name[:25]),
             picking.company_id.email,
             picking.partner_id.country_id.code,
             picking.sale_id.name or picking.name,
