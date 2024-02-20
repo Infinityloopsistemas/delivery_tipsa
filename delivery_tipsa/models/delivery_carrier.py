@@ -24,7 +24,7 @@ class DeliveryCarrier(models.Model):
         help='Password for Tipsa webservice',
     )
     tipsa_agency_code = fields.Char(
-        strig='Agency code',
+        string='Agency code',
     )
     tipsa_token = fields.Char(
         string='Access token',
@@ -182,7 +182,7 @@ class DeliveryCarrier(models.Model):
                 <strCPDes>%s</strCPDes>
                 <strPobDes>%s</strPobDes>
                 <strTlfDes>%s</strTlfDes>
-                <intPaq>1</intPaq>
+                <intPaq>%s</intPaq>
                 <strPersContacto>%s</strPersContacto>
                 <boDesSMS>0</boDesSMS>
                 <boDesEmail>1</boDesEmail>
@@ -212,6 +212,7 @@ class DeliveryCarrier(models.Model):
             picking.partner_id.zip,
             picking.partner_id.city[:25],
             picking.partner_id.phone,
+            picking.number_of_packages,
             picking.partner_id.display_name[:25],
             picking.company_id.email,
             picking.partner_id.country_id.code,
@@ -332,6 +333,7 @@ class DeliveryCarrier(models.Model):
         picking.write({
             'tipsa_last_response': fields.Datetime.now(),
         })
+        _logger.info('Tipsa send: %s', package_info)
         tracking_reference_start = res.text.find('<v1:strGuidOut>{')
         tracking_reference_end = res.text.find('}</v1:strGuidOut>')
         if tracking_reference_start == -1 or tracking_reference_end == -1:
