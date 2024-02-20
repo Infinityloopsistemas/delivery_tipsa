@@ -222,7 +222,7 @@ class DeliveryCarrier(models.Model):
             picking.partner_id.display_name[:25],
             picking.company_id.email,
             picking.partner_id.country_id.code,
-            picking.sale_id.name,
+            picking.sale_id.name or picking.name,
         )
         return self.normalize_text(xml)
 
