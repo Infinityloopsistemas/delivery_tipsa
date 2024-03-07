@@ -168,6 +168,20 @@ class DeliveryCarrier(models.Model):
     def _tipsa_prepare_create_shipping(self, picking, token_id):
         self.ensure_one()
         picking_date = datetime.now().strftime("%Y/%m/%d")
+        """
+        [IL - 07.03.24] Se añade la gestion del error para campos obligatorios a la hora de realizar envío.
+        Los campos que consideraremos obligatorios son los siguientes: nombre, dirección, código postal,
+        provincia y pais (todos del destinatario). No gestiona la obligatoriedad de los campos de la compañia
+        porque se presupone que esos campos están disponibles siempre
+        """
+        record_partner = picking.partner_id
+        mandatory_field = ['name', 'street', 'zip', 'state_id', 'country_id']
+        empty_fields = [field for field in mandatory_field if not getattr(record_partner, field)]
+
+        if empty_fields:
+            mssg_error = "Los siguientes campos obligatorios están sin rellenar en el cliente: {}".format(", ".join(empty_fields))
+            raise UserError(mssg_error)
+
         line_1 = '<soap:Envelope '
         line_2 = 'xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"'
         line_3 = 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
