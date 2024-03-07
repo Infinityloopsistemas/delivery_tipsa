@@ -10,6 +10,7 @@ from odoo import _, exceptions, fields, models
 
 
 
+
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -175,12 +176,12 @@ class DeliveryCarrier(models.Model):
         porque se presupone que esos campos están disponibles siempre
         """
         record_partner = picking.partner_id
-        mandatory_field = ['name', 'street', 'zip', 'state_id', 'country_id']
+        mandatory_field = ['name', 'street', 'zip', 'state_id', 'country_id','vat']
         empty_fields = [field for field in mandatory_field if not getattr(record_partner, field)]
 
         if empty_fields:
-            mssg_error = "Los siguientes campos obligatorios están sin rellenar en el cliente: {}".format(", ".join(empty_fields))
-            raise UserError(mssg_error)
+            mssg_error = _("The following mandatory fields are unfilled in the client: {} ").format(", ".join(empty_fields))
+            raise exceptions.UserError(mssg_error)
 
         line_1 = '<soap:Envelope '
         line_2 = 'xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"'
