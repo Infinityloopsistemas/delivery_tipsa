@@ -158,9 +158,11 @@ class DeliveryCarrier(models.Model):
         
     
     def normal_ascii(self,s):
-        s_ascii = s.encode('ascii', errors='ignore').decode()
-        s_limpio = re.sub(r'[^a-zA-Z0-9\s]', '', s_ascii)
-        
+        if s:
+            s_ascii = s.encode('ascii', errors='ignore').decode()
+            s_limpio = re.sub(r'[^a-zA-Z0-9\s]', '', s_ascii)
+        else:
+            s_limpio = s
         return s_limpio
 
     def _tipsa_prepare_create_shipping(self, picking, token_id):
@@ -178,7 +180,7 @@ class DeliveryCarrier(models.Model):
                 </ROClientIDHeader>
             </soap:Header>
             <soap:Body>
-                <WebServService___GrabaEnvio20>
+                <WebServService___GrabaEnvio24>
                 <strCodAgeCargo>%s</strCodAgeCargo>
                 <strCodAgeOri>%s</strCodAgeOri>
                 <dtFecha>%s</dtFecha>
@@ -197,6 +199,7 @@ class DeliveryCarrier(models.Model):
                 <strTlfDes>%s</strTlfDes>
                 <intPaq>%s</intPaq>
                 <strPersContacto>%s</strPersContacto>
+                <strDNIDes>%s</strDNIDes>
                 <boDesSMS>0</boDesSMS>
                 <boDesEmail>1</boDesEmail>
                 <strDesDirEmails>%s</strDesDirEmails>
@@ -227,6 +230,7 @@ class DeliveryCarrier(models.Model):
             picking.partner_id.phone,
             picking.number_of_packages,
             self.normal_ascii(picking.partner_id.display_name[:25]),
+            self.normal_ascii(picking.partner_id.vat),
             picking.company_id.email,
             picking.partner_id.country_id.code,
             picking.sale_id.name or picking.name,
