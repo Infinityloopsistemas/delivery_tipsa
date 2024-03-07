@@ -180,7 +180,7 @@ class DeliveryCarrier(models.Model):
                 </ROClientIDHeader>
             </soap:Header>
             <soap:Body>
-                <WebServService___GrabaEnvio20>
+                <WebServService___GrabaEnvio24>
                 <strCodAgeCargo>%s</strCodAgeCargo>
                 <strCodAgeOri>%s</strCodAgeOri>
                 <dtFecha>%s</dtFecha>
@@ -206,7 +206,7 @@ class DeliveryCarrier(models.Model):
                 <strCodPais>%s</strCodPais>
                 <strContenido>%s</strContenido>
                 <boInsert>1</boInsert>
-                </WebServService___GrabaEnvio20>
+                </WebServService___GrabaEnvio24>
             </soap:Body>
             </soap:Envelope>""" % (
             line_1 + line_2,
