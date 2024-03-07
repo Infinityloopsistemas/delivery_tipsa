@@ -7,7 +7,7 @@ from unicodedata import normalize
 
 import requests
 from odoo import _, exceptions, fields, models
-
+import re
 import logging
 _logger = logging.getLogger(__name__)   
 
@@ -153,6 +153,14 @@ class DeliveryCarrier(models.Model):
             'mimetype': mimetype,
         })
 
+    def normal_ascii(self,s):
+        if s:
+            s_ascii = s.encode('ascii', errors='ignore').decode()
+            s_limpio = re.sub(r'[^a-zA-Z0-9\s]', '', s_ascii)
+        else:
+            s_limpio = s
+        return s_limpio
+
     def _tipsa_prepare_create_shipping(self, picking, token_id):
         self.ensure_one()
         picking_date = datetime.now().strftime("%Y/%m/%d")
@@ -168,7 +176,7 @@ class DeliveryCarrier(models.Model):
                 </ROClientIDHeader>
             </soap:Header>
             <soap:Body>
-                <WebServService___GrabaEnvio24 xmlns="http://tempuri.org" >
+                <WebServService___GrabaEnvio24>
                 <strCodAgeCargo>%s</strCodAgeCargo>
                 <strCodAgeOri>%s</strCodAgeOri>
                 <dtFecha>%s</dtFecha>
@@ -187,6 +195,7 @@ class DeliveryCarrier(models.Model):
                 <strTlfDes>%s</strTlfDes>
                 <intPaq>%s</intPaq>
                 <strPersContacto>%s</strPersContacto>
+                <strDNIDes>%s</strDNIDes>
                 <boDesSMS>0</boDesSMS>
                 <boDesEmail>1</boDesEmail>
                 <strDesDirEmails>%s</strDesDirEmails>
@@ -204,22 +213,23 @@ class DeliveryCarrier(models.Model):
             picking_date,
             self.tipsa_service_code,
             picking.company_id.zip,
-            picking.company_id.display_name[:25],
-            picking.company_id.street[:25],
+            self.normal_ascii(picking.company_id.display_name[:25]),
+            self.normal_ascii(picking.company_id.street[:25]),
             picking.company_id.city[:25],
             picking.company_id.zip,
             picking.company_id.phone,
-            picking.partner_id.display_name[:25],
-            picking.partner_id.street[:70],
-            picking.sale_id.name,
+            self.normal_ascii(picking.partner_id.display_name[:25]),
+            self.normal_ascii(picking.partner_id.street and picking.partner_id.street[:70] or ''),
+            picking.sale_id.name or picking.name,
             picking.partner_id.zip,
             picking.partner_id.city[:25],
             picking.partner_id.phone,
             picking.number_of_packages,
-            picking.partner_id.display_name[:25],
+            self.normal_ascii(picking.partner_id.display_name[:25]),
+            self.normal_ascii(picking.partner_id.vat),
             picking.company_id.email,
             picking.partner_id.country_id.code,
-            picking.sale_id.name,
+            picking.sale_id.name or picking.name,
         )
         return self.normalize_text(xml)
 
