@@ -164,6 +164,15 @@ class DeliveryCarrier(models.Model):
     def _tipsa_prepare_create_shipping(self, picking, token_id):
         self.ensure_one()
         picking_date = datetime.now().strftime("%Y/%m/%d")
+        
+        record_partner = picking.partner_id
+        mandatory_field = ['name', 'street', 'zip', 'state_id', 'country_id','vat']
+        empty_fields = [field for field in mandatory_field if not getattr(record_partner, field)]
+
+        if empty_fields:
+            mssg_error = _("The following mandatory fields are unfilled in the client: {} ").format(", ".join(empty_fields))
+            raise exceptions.UserError(mssg_error)
+        
         line_1 = '<soap:Envelope '
         line_2 = 'xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"'
         line_3 = 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
