@@ -229,7 +229,7 @@ class DeliveryCarrier(models.Model):
             picking.company_id.phone,
             self.normal_ascii(picking.partner_id.display_name[:25]),
             self.normal_ascii(picking.partner_id.street and picking.partner_id.street[:70] or ''),
-            picking.sale_id.name or picking.name,
+            self.normal_ascii("%s - %s " %  (picking.sale_id.name or picking.name, picking.note or '')),
             picking.partner_id.zip,
             picking.partner_id.city[:25],
             picking.partner_id.phone,
@@ -238,7 +238,7 @@ class DeliveryCarrier(models.Model):
             self.normal_ascii(picking.partner_id.vat),
             picking.company_id.email,
             picking.partner_id.country_id.code,
-            picking.sale_id.name or picking.name,
+            self.normal_ascii("%s - %s " %  (picking.sale_id.name or picking.name, picking.note or '')),
         )
         return self.normalize_text(xml)
 
