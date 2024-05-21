@@ -166,7 +166,7 @@ class DeliveryCarrier(models.Model):
         picking_date = datetime.now().strftime("%Y/%m/%d")
         
         record_partner = picking.partner_id
-        mandatory_field = ['name', 'street', 'zip', 'state_id', 'country_id','vat']
+        mandatory_field = ['name', 'street', 'zip', 'state_id', 'country_id','vat','phone']
         empty_fields = [field for field in mandatory_field if not getattr(record_partner, field)]
 
         if empty_fields:
@@ -227,7 +227,7 @@ class DeliveryCarrier(models.Model):
             picking.company_id.city[:25],
             picking.company_id.zip,
             picking.company_id.phone,
-            self.normal_ascii(picking.partner_id.display_name[:25]),
+            self.normal_ascii(picking.partner_id.name[:25]),
             self.normal_ascii(picking.partner_id.street and picking.partner_id.street[:70] or ''),
             self.normal_ascii("%s - %s " %  (picking.sale_id.name or picking.name, picking.note or '')),
             picking.partner_id.zip,
@@ -236,7 +236,7 @@ class DeliveryCarrier(models.Model):
             picking.number_of_packages,
             self.normal_ascii(picking.partner_id.display_name[:25]),
             self.normal_ascii(picking.partner_id.vat),
-            picking.company_id.email,
+            picking.partner_id.email or picking.company_id.email,
             picking.partner_id.country_id.code,
             self.normal_ascii("%s - %s " %  (picking.sale_id.name or picking.name, picking.note or '')),
         )
