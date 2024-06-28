@@ -187,6 +187,7 @@ class DeliveryCarrier(models.Model):
         line_2 = 'xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"'
         line_3 = 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
         line_4 = 'xmlns:xsd="http://www.w3.org/2001/XMLSchema">'
+        partner_phone = picking.partner_id.phone if picking.partner_id.phone else picking.partner_id.mobile
         xml = """<?xml version="1.0" encoding="utf-8"?>
             %s %s
             <soap:Header>
@@ -242,7 +243,7 @@ class DeliveryCarrier(models.Model):
             picking.sale_id.name or picking.name,
             picking.partner_id.zip,
             picking.partner_id.city[:25],
-            picking.partner_id.phone,
+            partner_phone,
             picking.number_of_packages,
             self.normal_ascii(picking.partner_id.display_name[:25]),
             self.normal_ascii(picking.partner_id.vat),
