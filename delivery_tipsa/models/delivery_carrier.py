@@ -166,11 +166,10 @@ class DeliveryCarrier(models.Model):
     def remove_phone_format(self, phone_number):
         if not phone_number:
             return ''
-        # Quitar espacios y caracteres no numéricos excepto el "+"
-        phone_number_clean = re.sub(r'[^\d+]', '', phone_number)
-        if phone_number_clean.startswith('+'):
-            # Eliminar el '+' y los siguientes dígitos que corresponden al prefijo internacional
-            phone_number_clean = re.sub(r'^\+\d{1,3}', '', phone_number_clean)
+        # Eliminar prefijo (comienza con "+" seguido de números y un espacio)
+        phone_number_clean = re.sub(r'^\+\d+\s+', '', phone_number)
+        # Eliminar los espacios restantes
+        phone_number_clean = re.sub(r'\s+', '', phone_number_clean)
         return phone_number_clean
 
     def _tipsa_prepare_create_shipping(self, picking, token_id):
