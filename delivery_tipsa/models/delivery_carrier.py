@@ -160,6 +160,18 @@ class DeliveryCarrier(models.Model):
         else:
             s_limpio = s
         return s_limpio
+    """
+    [IL - T4505 - 05.09.24] Elimina el formateo en los teléfonos
+    """
+    def remove_phone_format(phone_number):
+        if not phone_number:
+            return ''
+        # Quitar espacios y caracteres no numéricos excepto el "+"
+        phone_number_clean = re.sub(r'[^\d+]', '', phone_number)
+        if phone_number_clean.startswith('+'):
+            # Eliminar el '+' y los siguientes dígitos que corresponden al prefijo internacional
+            phone_number_clean = re.sub(r'^\+\d{1,3}', '', phone_number_clean)
+        return phone_number_clean
 
     def _tipsa_prepare_create_shipping(self, picking, token_id):
         self.ensure_one()
@@ -177,6 +189,7 @@ class DeliveryCarrier(models.Model):
         line_2 = 'xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"'
         line_3 = 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
         line_4 = 'xmlns:xsd="http://www.w3.org/2001/XMLSchema">'
+        partner_phone = remove_phone_format(picking.partner_id.phone) if picking.partner_id.phone else remove_phone_format(picking.partner_id.mobile)
         xml = """<?xml version="1.0" encoding="utf-8"?>
             %s %s
             <soap:Header>
@@ -226,13 +239,13 @@ class DeliveryCarrier(models.Model):
             self.normal_ascii(picking.company_id.street[:25]),
             picking.company_id.city[:25],
             picking.company_id.zip,
-            picking.company_id.phone,
+            remove_phone_format(picking.company_id.phone),
             self.normal_ascii(picking.partner_id.name[:25]),
             self.normal_ascii(picking.partner_id.street and picking.partner_id.street[:70] or ''),
             self.normal_ascii("%s - %s " %  (picking.sale_id.name or picking.name, picking.note or '')),
             picking.partner_id.zip,
             picking.partner_id.city[:25],
-            picking.partner_id.phone,
+            partner_phone,
             picking.number_of_packages,
             self.normal_ascii(picking.partner_id.display_name[:25]),
             self.normal_ascii(picking.partner_id.vat),
