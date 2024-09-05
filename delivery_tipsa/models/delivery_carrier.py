@@ -163,7 +163,7 @@ class DeliveryCarrier(models.Model):
     """
     [IL - T4505 - 05.09.24] Elimina el formateo en los teléfonos
     """
-    def remove_phone_format(phone_number):
+    def remove_phone_format(self, phone_number):
         if not phone_number:
             return ''
         # Quitar espacios y caracteres no numéricos excepto el "+"
