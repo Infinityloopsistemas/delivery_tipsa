@@ -166,11 +166,10 @@ class DeliveryCarrier(models.Model):
     def remove_phone_format(self, phone_number):
         if not phone_number:
             return ''
-        # Quitar espacios y caracteres no numéricos excepto el "+"
-        phone_number_clean = re.sub(r'[^\d+]', '', phone_number)
-        if phone_number_clean.startswith('+'):
-            # Eliminar el '+' y los siguientes dígitos que corresponden al prefijo internacional
-            phone_number_clean = re.sub(r'^\+\d{1,3}', '', phone_number_clean)
+        # Eliminar prefijo (comienza con "+" seguido de números y un espacio)
+        phone_number_clean = re.sub(r'^\+\d+\s+', '', phone_number)
+        # Eliminar los espacios restantes
+        phone_number_clean = re.sub(r'\s+', '', phone_number_clean)
         return phone_number_clean
 
     def _tipsa_prepare_create_shipping(self, picking, token_id):
@@ -189,7 +188,6 @@ class DeliveryCarrier(models.Model):
         line_2 = 'xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"'
         line_3 = 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
         line_4 = 'xmlns:xsd="http://www.w3.org/2001/XMLSchema">'
-        partner_phone = self.remove_phone_format(picking.partner_id.phone) if picking.partner_id.phone else self.remove_phone_format(picking.partner_id.mobile)
         xml = """<?xml version="1.0" encoding="utf-8"?>
             %s %s
             <soap:Header>
@@ -245,7 +243,7 @@ class DeliveryCarrier(models.Model):
             self.normal_ascii("%s - %s " %  (picking.sale_id.name or picking.name, picking.note or '')),
             picking.partner_id.zip,
             picking.partner_id.city[:25],
-            partner_phone,
+            self.remove_phone_format(picking.partner_id.phone),
             picking.number_of_packages,
             self.normal_ascii(picking.partner_id.display_name[:25]),
             self.normal_ascii(picking.partner_id.vat),
