@@ -189,7 +189,7 @@ class DeliveryCarrier(models.Model):
         line_2 = 'xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"'
         line_3 = 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
         line_4 = 'xmlns:xsd="http://www.w3.org/2001/XMLSchema">'
-        partner_phone = remove_phone_format(picking.partner_id.phone) if picking.partner_id.phone else remove_phone_format(picking.partner_id.mobile)
+        partner_phone = self.remove_phone_format(picking.partner_id.phone) if picking.partner_id.phone else self.remove_phone_format(picking.partner_id.mobile)
         xml = """<?xml version="1.0" encoding="utf-8"?>
             %s %s
             <soap:Header>
@@ -239,7 +239,7 @@ class DeliveryCarrier(models.Model):
             self.normal_ascii(picking.company_id.street[:25]),
             picking.company_id.city[:25],
             picking.company_id.zip,
-            remove_phone_format(picking.company_id.phone),
+            self.remove_phone_format(picking.company_id.phone),
             self.normal_ascii(picking.partner_id.name[:25]),
             self.normal_ascii(picking.partner_id.street and picking.partner_id.street[:70] or ''),
             self.normal_ascii("%s - %s " %  (picking.sale_id.name or picking.name, picking.note or '')),
