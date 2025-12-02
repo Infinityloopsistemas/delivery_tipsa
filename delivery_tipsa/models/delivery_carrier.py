@@ -238,7 +238,7 @@ class DeliveryCarrier(models.Model):
             self.normal_ascii(picking.partner_id.vat),
             picking.partner_id.email or picking.company_id.email,
             picking.partner_id.country_id.code,
-            self.normal_ascii("%s - %s " %  (picking.sale_id.name or picking.name, picking.note or '')),
+            self.normal_ascii("%s - %s - %s" %  (picking.sale_id.name or picking.name, picking.name or picking.origin , picking.note or '')),
         )
         return self.normalize_text(xml)
 
